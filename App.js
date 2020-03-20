@@ -1,8 +1,39 @@
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
+import { StyleSheet, Text, View, SectionList, Button } from 'react-native';
 import Constants from 'expo-constants';
 
 import getContacts from './getContacts';
+
+const sectionContactsByInitials = contacts => {
+	const contactsByLetter = contacts.reduce((contactsMap, currentContact) => {
+		const letterKey = currentContact.name[0];
+		if (!contactsMap[letterKey]) {
+			return {
+				...contactsMap,
+				[letterKey]: [currentContact]
+			};
+		}
+		return {
+			...contactsMap,
+			[letterKey]: contactsMap[letterKey].concat(currentContact)
+		};
+	}, {});
+	const sectionedContacts = Object.keys(contactsByLetter)
+		.map(key => ({
+			title: key,
+			data: contactsByLetter[key]
+		}))
+		.sort((a, b) => {
+			if (a.title < b.title) {
+				return -1;
+			} else if (a.title > b.title) {
+				return 1;
+			}
+			return 0;
+		});
+
+	return sectionedContacts;
+};
 
 function Row({ contact }) {
 	return (
@@ -14,9 +45,11 @@ function Row({ contact }) {
 }
 
 /**
- * look at how many is loaded in reloadContacts function
+ * see how it looks in the simulator/emulator
  *
- * try changing it up and compare with your results from scrollview
+ * read through documentations in https://reactnative.dev/docs/sectionlist
+ * Try out some prop features
+ * play around with the code
  */
 export default class App extends React.Component {
 	state = {
@@ -26,7 +59,7 @@ export default class App extends React.Component {
 
 	reloadContacts = () =>
 		this.setState({
-			contacts: getContacts(100000), // notice how fast it loads even if I'm loading alot more compared to scrollview
+			contacts: getContacts(1000),
 			isContactsShown: !this.state.isContactsShown
 		});
 
@@ -35,9 +68,16 @@ export default class App extends React.Component {
 			<View style={styles.container}>
 				<Button title="Toggle contacts" onPress={this.reloadContacts} />
 				{this.state.isContactsShown && (
-					<FlatList
-						data={this.state.contacts}
-						renderItem={renderedItem => <Row contact={renderedItem.item} />}
+					<SectionList
+						style={{ marginTop: 16, flex: 1 }}
+						sections={sectionContactsByInitials(this.state.contacts)}
+						keyExtractor={(item, index) => item.key}
+						renderItem={({ item }) => <Row contact={item} />}
+						renderSectionHeader={({ section: { title } }) => (
+							<View style={styles.sectionHeaderContainer}>
+								<Text style={styles.sectionHeaderTitle}>{title}</Text>
+							</View>
+						)}
 					/>
 				)}
 			</View>
@@ -61,5 +101,13 @@ const styles = StyleSheet.create({
 	text: {
 		fontSize: 16,
 		color: 'blue'
+	},
+	sectionHeaderContainer: {
+		backgroundColor: 'black'
+	},
+	sectionHeaderTitle: {
+		color: 'white',
+		fontWeight: '900',
+		fontSize: 48
 	}
 });
