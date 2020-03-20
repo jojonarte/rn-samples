@@ -1,32 +1,25 @@
 import React from 'react';
-// these are examples of named imports
 import { StyleSheet, Text, View, Button } from 'react-native';
 
-// this is an example of a default import
+// go to this file to see propTypes sample
 import SecondComponent from './screens/SecondComponent';
 
-// This is an example of a default export
 export default class MainComponent extends React.Component {
 	state = {
 		isNewComponentMounted: false
 	};
-	componentWillMount() {
-		console.log('MainComponent will mount');
-	}
-	componentDidMount() {
-		console.log('MainComponent mounted');
-	}
+
 	toggleComponentMounting = () =>
 		this.setState({
 			isNewComponentMounted: !this.state.isNewComponentMounted
 		});
 
-	componentWillUnmount() {
-		console.log('MainComponent will unmount');
-	}
-
 	render() {
-		console.log('MainComponent rendered');
+		// if we remove line 26 onSecondComponentUnmountPressed={this.toggleComponentMounting}
+		// when mounting the SecondComponent we will see an error related to propTypes
+		// propTypes is used to self-document react components
+		// for developers to know what the component is intended to receive
+		// it is important to manage project as it grows
 		if (this.state.isNewComponentMounted)
 			return (
 				<SecondComponent
