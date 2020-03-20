@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, SectionList, Button } from 'react-native';
 import Constants from 'expo-constants';
 
-import getContacts from './getContacts';
+import AddContact from './screens/AddContact';
 
 const sectionContactsByInitials = contacts => {
 	const contactsByLetter = contacts.reduce((contactsMap, currentContact) => {
@@ -44,42 +44,50 @@ function Row({ contact }) {
 	);
 }
 
-/**
- * see how it looks in the simulator/emulator
- *
- * read through documentations in https://reactnative.dev/docs/sectionlist
- * Try out some prop features
- * play around with the code
- */
 export default class App extends React.Component {
 	state = {
-		contacts: getContacts(),
-		isContactsShown: false
+		contacts: [],
+		isAddContactsShown: false
 	};
 
-	reloadContacts = () =>
-		this.setState({
-			contacts: getContacts(1000),
-			isContactsShown: !this.state.isContactsShown
+	/**
+	 * this function reverses the value of boolean isAddContactsShown
+	 */
+	toggleAddContacts = () =>
+		this.setState(prevState => {
+			return {
+				isAddContactsShown: !prevState.isAddContactsShown
+			};
 		});
 
 	render() {
+		if (this.state.isAddContactsShown) {
+			/**
+			 * a prop callback must be implemented in AddContact, see previous
+			 * examples we've tackled this in this session
+			 *
+			 * 1. the function called must add a new contact object to the contacts in this.state
+			 * 2. it should show in the UI
+			 * 3. saving from AddContact component must remove it from view and return to the flat list view
+			 */
+			return <AddContact />;
+		}
+
 		return (
 			<View style={styles.container}>
-				<Button title="Toggle contacts" onPress={this.reloadContacts} />
-				{this.state.isContactsShown && (
-					<SectionList
-						style={{ marginTop: 16, flex: 1 }}
-						sections={sectionContactsByInitials(this.state.contacts)}
-						keyExtractor={(item, index) => item.key}
-						renderItem={({ item }) => <Row contact={item} />}
-						renderSectionHeader={({ section: { title } }) => (
-							<View style={styles.sectionHeaderContainer}>
-								<Text style={styles.sectionHeaderTitle}>{title}</Text>
-							</View>
-						)}
-					/>
-				)}
+				<Button title="Add contact" onPress={this.toggleAddContacts} />
+				<Text style={{ color: 'black', fontSize: 24 }}>Contacts</Text>
+				<SectionList
+					style={{ marginTop: 16, flex: 1 }}
+					sections={sectionContactsByInitials(this.state.contacts)}
+					keyExtractor={(item, index) => item.key}
+					renderItem={({ item }) => <Row contact={item} />}
+					renderSectionHeader={({ section: { title } }) => (
+						<View style={styles.sectionHeaderContainer}>
+							<Text style={styles.sectionHeaderTitle}>{title}</Text>
+						</View>
+					)}
+				/>
 			</View>
 		);
 	}
