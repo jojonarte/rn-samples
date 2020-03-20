@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Button } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
 import Constants from 'expo-constants';
 
 import getContacts from './getContacts';
@@ -14,11 +14,9 @@ function Row({ contact }) {
 }
 
 /**
- * at the start this app is fast
- * clicking on toggle contacts will load the contacts fast
+ * look at how many is loaded in reloadContacts function
  *
- * try changing the value passed to `getContacts` in reloadContacts function
- * notice the changes in performance in the app.
+ * try changing it up and compare with your results from scrollview
  */
 export default class App extends React.Component {
 	state = {
@@ -28,20 +26,20 @@ export default class App extends React.Component {
 
 	reloadContacts = () =>
 		this.setState({
-			contacts: getContacts(1), // try changing the value passed to `getContacts` here
+			contacts: getContacts(100000), // notice how fast it loads even if I'm loading alot more compared to scrollview
 			isContactsShown: !this.state.isContactsShown
 		});
 
 	render() {
 		return (
 			<View style={styles.container}>
-				<ScrollView>
-					<Button title="Toggle contacts" onPress={this.reloadContacts} />
-					{this.state.isContactsShown &&
-						this.state.contacts.map(contactItem => (
-							<Row contact={contactItem} />
-						))}
-				</ScrollView>
+				<Button title="Toggle contacts" onPress={this.reloadContacts} />
+				{this.state.isContactsShown && (
+					<FlatList
+						data={this.state.contacts}
+						renderItem={renderedItem => <Row contact={renderedItem.item} />}
+					/>
+				)}
 			</View>
 		);
 	}
