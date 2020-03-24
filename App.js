@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 
 export default class App extends React.Component {
   state = {
-    timerValue: 0, 
+    timerValue: 1, 
     isTimerStarted: false,
     status: '',
   }
